@@ -40,6 +40,6 @@ app.UseStaticFiles();
 app.MapControllers();
 app.MapHub<ChatHub>("/chathub");
 
-app.MapGet("/", () => Results.Redirect("/test.html"));
+app.MapGet("/", () => Results.Redirect("/index.html"));
 
 app.Run();
