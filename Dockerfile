@@ -1,21 +1,12 @@
-FROM ://mcr.microsoft.com AS build
+# Этап сборки
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-
-# ВАЖНО: Если твоя папка называется по-другому, поправь путь ниже!
-COPY ["Ambe.Server/Ambe.Server.csproj", "Ambe.Server/"]
-RUN dotnet restore "Ambe.Server/Ambe.Server.csproj"
-
 COPY . .
-WORKDIR "/src/Ambe.Server"
-RUN dotnet build "Ambe.Server.csproj" -c Release -o /app/build
-
-FROM build AS publish
+RUN dotnet restore "Ambe.Server.csproj"
 RUN dotnet publish "Ambe.Server.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-FROM ://mcr.microsoft.com AS final
+# Финальный этап
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
-
-ENV ASPNETCORE_URLS=http://+:10000
-
+COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "Ambe.Server.dll"]
