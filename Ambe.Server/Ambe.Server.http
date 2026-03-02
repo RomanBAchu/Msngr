@@ -1,0 +1,6 @@
+@Ambe.Server_HostAddress = http://localhost:5009
+
+GET {{Ambe.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
