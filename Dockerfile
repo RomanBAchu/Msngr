@@ -1,20 +1,31 @@
-# 1. Берем образ с SDK (инструменты разработчика), чтобы собрать проект
+# 1. Используем SDK 8.0 для сборки
 FROM ://mcr.microsoft.com AS build
 WORKDIR /src
 
-# 2. Копируем файл проекта и восстанавливаем зависимости
-# ВНИМАНИЕ: Если у тебя папки называются иначе, поправь пути!
-COPY ["Ambe.Server.csproj", "./"]
-RUN dotnet restore "./Ambe.Server.csproj"
+# 2. КОПИРУЕМ ФАЙЛ ПРОЕКТА ИЗ ПОДПАПКИ
+# Если твоя папка называется Msngr или Ambe.Server, проверь это имя!
+# Предположим, папка называется Ambe.Server:
+COPY ["Ambe.Server/Ambe.Server.csproj", "Ambe.Server/"]
 
-# 3. Копируем всё остальное и собираем
+# 3. Восстанавливаем зависимости
+RUN dotnet restore "Ambe.Server/Ambe.Server.csproj"
+
+# 4. Копируем все файлы из корня в контейнер
 COPY . .
-RUN dotnet publish "Ambe.Server.csproj" -c Release -o /app/publish
 
-# 4. Берем легкий образ для запуска (Runtime)
-FROM ://mcr.microsoft.com
+# 5. Собираем проект
+WORKDIR "/src/Ambe.Server"
+RUN dotnet build "Ambe.Server.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "Ambe.Server.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# 6. Финальный образ для запуска
+FROM ://mcr.microsoft.com AS final
 WORKDIR /app
-COPY --from=build /app/publish .
+COPY --from=publish /app/publish .
 
-# 5. Команда для запуска
+# Указываем порт, который мы задали в Render (10000)
+ENV ASPNETCORE_URLS=http://+:10000
+
 ENTRYPOINT ["dotnet", "Ambe.Server.dll"]
