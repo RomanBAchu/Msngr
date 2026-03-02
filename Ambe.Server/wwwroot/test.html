@@ -9,6 +9,7 @@
             overflow-y: auto;
             padding: 10px;
             margin-bottom: 10px;
+            background: #f9f9f9; /* Добавил легкий фон */
         }
 
         input, button {
@@ -18,56 +19,63 @@
     </style>
 </head>
 <body>
-    <h2>Добро пожаловать</h2>
+    <h2>Добро пожаловать в Мессенджер Господина</h2>
 
     <div>
-        <input type="text" id="userInput" placeholder="Тя как зовут" value="User1" />
-        <input type="text" id="messageInput" placeholder="Введите сообщение" />
+        <input type="text" id="userInput" placeholder="Тя как звать то?" value="User1" />
+        <input type="text" id="messageInput" placeholder="Рассказывай" />
         <button onclick="sendTestMessage()">Отправить</button>
     </div>
 
     <div id="status">Статус: не подключено</div>
     <div id="messages"></div>
 
-    <!-- Подключаем библиотеку SignalR через CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
 
     <script>
         let connection;
 
         function connectToHub() {
+            // ==========================================
+            // ГЛАВНОЕ ИЗМЕНЕНИЕ ТУТ:
+            // window.location.origin сам поймет, где запущен сайт:
+            // на localhost или на Render.
+            // ==========================================
+            const hubUrl = window.location.origin + "/chathub";
+
+            console.log("Пытаюсь подключиться к:", hubUrl);
+
             connection = new signalR.HubConnectionBuilder()
-
-
-                // Старый URL (локальный)
-                .withUrl("http://localhost:5009/chathub")
-
-                // Новый URL (через Localtunnel)
-                //.withUrl("https://good-insects-raise.loca.lt")
-
-
+                .withUrl(hubUrl)
+                .withAutomaticReconnect() // Самый важный бонус: сам переподключится при сбое
                 .configureLogging(signalR.LogLevel.Information)
                 .build();
 
             connection.on("ReceiveMessage", (user, message) => {
                 const msgDiv = document.createElement("div");
-                msgDiv.textContent = `[${new Date().toLocaleTimeString()}] ${user}: ${message}`;
+                msgDiv.innerHTML = `<b>[${new Date().toLocaleTimeString()}] ${user}:</b> ${message}`;
                 document.getElementById("messages").appendChild(msgDiv);
                 document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
             });
 
+            // Слушаем события входа/выхода, которые ты прописал в ChatHub.cs
+            connection.on("UserJoined", (connectionId) => {
+                console.log("К нам зашел новый бро: " + connectionId);
+            });
+
             connection.onclose(() => {
-                document.getElementById("status").textContent = "Статус: отключено";
+                document.getElementById("status").style.color = "red";
+                document.getElementById("status").textContent = "Соединение потеряно";
             });
 
             connection.start()
                 .then(() => {
-                    document.getElementById("status").textContent = "Статус: подключено";
-                    console.log("Подключено к хабу");
+                    document.getElementById("status").style.color = "green";
+                    document.getElementById("status").textContent = "В сети";
                 })
                 .catch(err => {
-                    document.getElementById("status").textContent = `Статус: ошибка подключения: ${err}`;
-                    console.error("Ошибка подключения:", err);
+                    document.getElementById("status").textContent = `Ошибка: ${err}`;
+                    console.error("Критическая ошибка:", err);
                 });
         }
 
@@ -80,7 +88,7 @@
                     .catch(err => console.error("Ошибка отправки:", err));
                 document.getElementById("messageInput").value = "";
             } else {
-                alert("Сначала подключитесь к хабу!");
+                alert("Погоди, чат еще не подключился к серверу!");
             }
         }
 
