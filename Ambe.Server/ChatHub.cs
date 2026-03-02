@@ -20,6 +20,6 @@ namespace Ambe.Server.Hubs
             await base.OnDisconnectedAsync(exception);
             await Clients.Others.SendAsync("UserLeft", Context.ConnectionId);
         }
-        // Привет
+        
     }
 }
