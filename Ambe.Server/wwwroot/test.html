@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SignalR Chat Test</title>
+    <style>
+        #messages {
+            border: 1px solid #ccc;
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        input, button {
+            padding: 8px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Добро пожаловать</h2>
+
+    <div>
+        <input type="text" id="userInput" placeholder="Тя как зовут" value="User1" />
+        <input type="text" id="messageInput" placeholder="Введите сообщение" />
+        <button onclick="sendTestMessage()">Отправить</button>
+    </div>
+
+    <div id="status">Статус: не подключено</div>
+    <div id="messages"></div>
+
+    <!-- Подключаем библиотеку SignalR через CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
+
+    <script>
+        let connection;
+
+        function connectToHub() {
+            connection = new signalR.HubConnectionBuilder()
+
+
+                // Старый URL (локальный)
+                .withUrl("http://localhost:5009/chathub")
+
+                // Новый URL (через Localtunnel)
+                //.withUrl("https://good-insects-raise.loca.lt")
+
+
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+
+            connection.on("ReceiveMessage", (user, message) => {
+                const msgDiv = document.createElement("div");
+                msgDiv.textContent = `[${new Date().toLocaleTimeString()}] ${user}: ${message}`;
+                document.getElementById("messages").appendChild(msgDiv);
+                document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+            });
+
+            connection.onclose(() => {
+                document.getElementById("status").textContent = "Статус: отключено";
+            });
+
+            connection.start()
+                .then(() => {
+                    document.getElementById("status").textContent = "Статус: подключено";
+                    console.log("Подключено к хабу");
+                })
+                .catch(err => {
+                    document.getElementById("status").textContent = `Статус: ошибка подключения: ${err}`;
+                    console.error("Ошибка подключения:", err);
+                });
+        }
+
+        function sendTestMessage() {
+            const user = document.getElementById("userInput").value;
+            const message = document.getElementById("messageInput").value;
+
+            if (connection && connection.state === signalR.HubConnectionState.Connected) {
+                connection.invoke("SendMessage", user, message)
+                    .catch(err => console.error("Ошибка отправки:", err));
+                document.getElementById("messageInput").value = "";
+            } else {
+                alert("Сначала подключитесь к хабу!");
+            }
+        }
+
+        window.onload = connectToHub;
+    </script>
+</body>
+</html>
