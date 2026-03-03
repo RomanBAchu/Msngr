@@ -1,75 +1,193 @@
+﻿/* Глобальные стили и градиентный фон */
 body {
-    font-family: Arial, sans-serif;
-    margin: 10px;
-    padding: 0;
-    background: #fff;
-    color: #333;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f2043 0%, #1a3a6d 50%, #0d1b33 100%);
+    min-height: 100vh;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.chat-container {
+    max-width: 700px; /* Увеличил ширину контейнера */
+    width: 100%;
+    margin: 0 auto;
+    padding: 35px 25px; /* Немного уменьшил отступы сверху/снизу */
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 h3 {
+    color: #ffffff;
     text-align: center;
-    font-size: 1.3rem;
-    margin-bottom: 5px;
-}
-
-h5 {
-    text-align: center;
-    font-size: 0.9rem;
-    margin-top: 5px;
-    margin-bottom: 20px;
-    color: #666;
-}
-
-.input-container {
-    margin-bottom: 20px;
+    margin-bottom: 20px; /* Уменьшил отступ снизу */
+    font-size: 1em; /* Немного уменьшил размер шрифта заголовка */
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 10px rgba(0, 123, 255, 0.5);
+    color: rgb(255 255 255 / 73%);
 }
 
 #messages {
-    border: 1px solid #ccc;
-    height: 45vh;
-    min-height: 250px;
+    height: 320px; /* Значительно уменьшил высоту окна сообщений */
     overflow-y: auto;
-    padding: 12px;
-    margin-bottom: 15px;
-    background: #f9f9f9;
-    border-radius: 8px;
-    font-size: 14px;
+    padding: 12px 15px; /* Уменьшил внутренние отступы */
+    margin-bottom: 18px; /* Уменьшил отступ снизу */
+    border-radius: 12px;
+    background: rgba(13, 30, 60, 0.7);
+    border: 1px solid rgba(60, 115, 180, 0.4);
+    backdrop-filter: blur(5px);
 }
 
-input, textarea, button {
+/* Стили для сообщений */
+.message {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 12px; /* Уменьшил отступ между сообщениями */
+    padding: 10px 15px; /* Уменьшил отступы внутри сообщения */
+    border-radius: 16px; /* Слегка уменьшил скругление */
+    max-width: 85%; /* Немного увеличил максимальную ширину сообщения */
+    position: relative;
+    animation: fadeIn 0.3s ease;
+}
+
+.user-message {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message-content {
+    font-size: 1em; /* Немного уменьшил размер текста сообщения */
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.message-time {
+    font-size: 0.75em; /* Уменьшил размер шрифта времени */
+    opacity: 0.8;
+    margin-top: 4px; /* Уменьшил отступ сверху у времени */
+    align-self: flex-end;
+}
+
+.input-area input,
+.input-area textarea {
+    width: 100%;
+    padding: 10px 12px; /* Уменьшил отступы в полях ввода */
+    margin-bottom: 8px; /* Уменьшил отступ снизу */
+    border: none;
+    border-radius: 10px;
     box-sizing: border-box;
-    padding: 16px;
-    margin: 8px 0;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
+    font-size: 1em;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    resize: none; /* Отключаем ручное растягивание */
 }
 
-#userInput {
-    width: 100%;
-    max-width: 300px;
-    margin: 8px auto;
-    display: block;
 }
 
-textarea {
-    width: 100%;
-    min-height: 120px;
-    resize: vertical;
-    overflow-y: auto;
+    .input-area input:focus,
+    .input-area textarea:focus {
+        outline: none;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    }
+
+.controls {
+    display: flex;
+    gap: 8px; /* Уменьшил расстояние между элементами управления */
 }
 
-button {
-    width: 100%;
-    background: #007bff;
+#sendBtn {
+    padding: 10px 60px; /* Уменьшил отступы кнопки */
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
     color: white;
     border: none;
+    border-radius: 10px;
     cursor: pointer;
-    min-height: 52px;
-    font-weight: bold;
+    font-size: 1em; /* Немного уменьшил шрифт в кнопке */
+    font-weight: 600;
+    transition: all 0.3s ease;
+    
 }
 
-.error-input {
-    border-color: #dc3545;
-    box-shadow: 0 0 5px rgba(220, 53, 69, 0.3);
+    #sendBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 123, 255, 0.6);
+    }
+
+    #sendBtn:active {
+        transform: translateY(0);
+    }
+
+/* Анимация появления сообщений */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Скроллбар */
+#messages::-webkit-scrollbar {
+    width: 6px; /* Уменьшил ширину скроллбара */
+}
+
+#messages::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+#messages::-webkit-scrollbar-thumb {
+    background: rgba(0, 123, 255, 0.6);
+    border-radius: 3px;
+}
+
+    #messages::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 123, 255, 0.8);
+    }
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .chat-container {
+        padding: 18px 4px; /* Уменьшаем отступы на мобильных */
+        max-width: 95%; /* Почти на всю ширину экрана */
+    }
+
+    h3 {
+        font-size: 1em;  Уменьшаем заголовок на мобильных */
+        margin-bottom: 1px;
+    }
+
+    #messages {
+        height: 280px; /* Ещё меньше высота на мобильных */
+        padding: 10px;
+    }
+
+    .message {
+        padding: 8px 12px; /* Меньше отступы в сообщениях */
+        max-width: 90%; /* Больше места для текста */
+    }
+
+    .input-area input,
+    .input-area textarea {
+        padding: 8px 10px;
+        margin-bottom: 6px;
+    }
+
+    #sendBtn {
+        
+        font-size: 0.95em;
+    }
 }

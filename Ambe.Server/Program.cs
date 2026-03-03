@@ -2,44 +2,32 @@ using Ambe.Server.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Добавляем CORS, чтобы браузеры друзей не блокировали чат
+// 1. Настройка SignalR
+builder.Services.AddSignalR();
+
+// 2. Настройка CORS (оставляем как есть, это важно для тестов)
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
         policy.AllowAnyHeader()
               .AllowAnyMethod()
-              .SetIsOriginAllowed((host) => true) // Разрешаем любым сайтам подключаться
-              .AllowCredentials(); // Важно для SignalR
+              .SetIsOriginAllowed(_ => true)
+              .AllowCredentials();
     });
 });
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR();
-
 var app = builder.Build();
 
-// 2. Включаем CORS сразу после Build
-app.UseCors();
+// 3. Конвейер обработки (Middleware)
+app.UseStaticFiles(); // Сначала отдаем index.html
+app.UseCors();        // Затем разрешаем доступ
+app.UseRouting();     // Включаем маршрутизацию
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-// Закомментируй HttpsRedirection для тестов на Render/Localtunnel, 
-// так как они сами дают HTTPS, и двойное перенаправление может глючить
-// app.UseHttpsRedirection();
-
-app.UseAuthorization();
-app.UseStaticFiles();
-
-app.MapControllers();
+// Убираем лишние проверки на Development, если чат простой
 app.MapHub<ChatHub>("/chathub");
 
+// Редирект на главную
 app.MapGet("/", () => Results.Redirect("/index.html"));
 
 app.Run();
